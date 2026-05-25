@@ -1,0 +1,16 @@
+{
+  "name": "PipeRush",
+  "short_name": "PipeRush",
+  "description": "Futuristička puzzle igra povezivanja cijevi sa kampanjom, boss nivoima i neon cyber stilom.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#061c36",
+  "theme_color": "#061c36",
+  "icons": [
+    {
+      "src": "/assets/logo/piperush-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
