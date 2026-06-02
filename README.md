@@ -5,7 +5,7 @@ PipeRush je inovirana verzija klasične puzzle igre tipa `Pipeline`. Cilj igrač
 ## Predajni sažetak
 
 - Tema: `Pipeline`
-- Repozitorijum: [https://github.com/programernaaparate/PipeRush](https://github.com/programernaaparate/PipeRush)
+- Repozitorijum: [https://github.com/programernaaparate/Piperush](https://github.com/programernaaparate/Piperush)
 - Promo materijal: kratki promo video `15–30s` je pripremljen kao zaseban fajl za predaju
 - Tehnologije: `React`, `Vite`, `JavaScript`, `CSS`, `localStorage`
 

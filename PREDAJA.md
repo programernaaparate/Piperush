@@ -52,7 +52,7 @@ Screenshotovi su priloženi u folderu:
 
 ## 5. Link do repozitorijuma
 
-[https://github.com/programernaaparate/PipeRush](https://github.com/programernaaparate/PipeRush)
+[https://github.com/programernaaparate/Piperush](https://github.com/programernaaparate/Piperush)
 
 ## 6. Promo materijal
 
