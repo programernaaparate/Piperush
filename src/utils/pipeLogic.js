@@ -429,7 +429,7 @@ function buildHintRecommendation(tile, kind = "fallback", moveCount = 0) {
   const connectionLabel = formatDirectionList(targetConnections);
   const lockMovesRemaining = getLockMovesRemaining(tile, moveCount);
   let message = `Polje ${positionLabel}: poravnaj cijev prema pravcu ${connectionLabel}.`;
-  let badgeLabel = turnsNeeded > 0 ? `x${turnsNeeded}` : "TIP";
+  let badgeLabel = turnsNeeded > 0 ? `x${turnsNeeded}` : "SAV";
   let solverLabel = "AI analiza";
 
   if (lockMovesRemaining > 0) {
@@ -438,13 +438,13 @@ function buildHintRecommendation(tile, kind = "fallback", moveCount = 0) {
     solverLabel = "Zaključano polje";
   } else if (turnsNeeded > 0) {
     message = `Polje ${positionLabel}: okreni cijev ${turnsNeeded}x da spoji ${connectionLabel}.`;
-    solverLabel = kind === "frontier" ? "Front analiza" : "Ruta analiza";
+    solverLabel = kind === "frontier" ? "Prva prepreka" : "Glavna ruta";
   } else if (kind === "frontier") {
     message = `Polje ${positionLabel}: ovdje treba da se nastavi glavni tok ka ${connectionLabel}.`;
-    solverLabel = "Front analiza";
+    solverLabel = "Prva prepreka";
   } else if (kind === "path") {
     message = `Polje ${positionLabel}: sljedeći ključni spoj ide ka ${connectionLabel}.`;
-    solverLabel = "Ruta analiza";
+    solverLabel = "Glavna ruta";
   }
 
   return {
@@ -468,14 +468,113 @@ function buildHintRecommendation(tile, kind = "fallback", moveCount = 0) {
   };
 }
 
-function getContiguousPathIndex(pathIds, reachableSet) {
-  let index = 0;
-
-  while (index + 1 < pathIds.length && reachableSet.has(pathIds[index + 1])) {
-    index += 1;
+function getDirectionBetweenTiles(currentTile, nextTile) {
+  if (!currentTile || !nextTile) {
+    return null;
   }
 
-  return index;
+  const rowDelta = nextTile.row - currentTile.row;
+  const columnDelta = nextTile.column - currentTile.column;
+
+  if (rowDelta === -1 && columnDelta === 0) {
+    return "up";
+  }
+
+  if (rowDelta === 0 && columnDelta === 1) {
+    return "right";
+  }
+
+  if (rowDelta === 1 && columnDelta === 0) {
+    return "down";
+  }
+
+  if (rowDelta === 0 && columnDelta === -1) {
+    return "left";
+  }
+
+  return null;
+}
+
+function getFirstBrokenPathSegment(board, pathIds) {
+  for (let index = 0; index < pathIds.length - 1; index += 1) {
+    const currentTile = getTileById(board, pathIds[index]);
+    const nextTile = getTileById(board, pathIds[index + 1]);
+    const direction = getDirectionBetweenTiles(currentTile, nextTile);
+
+    if (
+      !currentTile ||
+      !nextTile ||
+      !direction ||
+      !canConnect(currentTile, nextTile, direction)
+    ) {
+      return {
+        index,
+        currentTile,
+        nextTile,
+      };
+    }
+  }
+
+  return null;
+}
+
+export function getContiguousPathLength(board, levelPath = []) {
+  const pathIds = levelPath.map(([row, column]) => `${row}-${column}`);
+
+  if (pathIds.length === 0) {
+    return 0;
+  }
+
+  const firstTile = getTileById(board, pathIds[0]);
+
+  if (!firstTile) {
+    return 0;
+  }
+
+  let contiguousLength = 1;
+
+  for (let index = 0; index < pathIds.length - 1; index += 1) {
+    const currentTile = getTileById(board, pathIds[index]);
+    const nextTile = getTileById(board, pathIds[index + 1]);
+    const direction = getDirectionBetweenTiles(currentTile, nextTile);
+
+    if (
+      !currentTile ||
+      !nextTile ||
+      !direction ||
+      !canConnect(currentTile, nextTile, direction)
+    ) {
+      break;
+    }
+
+    contiguousLength += 1;
+  }
+
+  return contiguousLength;
+}
+
+function getBrokenPathRecommendation(
+  brokenSegment,
+  moveCount = 0,
+  { skipLocked = false } = {},
+) {
+  if (!brokenSegment) {
+    return null;
+  }
+
+  for (const tile of [brokenSegment.currentTile, brokenSegment.nextTile]) {
+    if (!tile || !isRotatable(tile) || tileHasCorrectRotation(tile)) {
+      continue;
+    }
+
+    if (skipLocked && getLockMovesRemaining(tile, moveCount) > 0) {
+      return null;
+    }
+
+    return buildHintRecommendation(tile, "frontier", moveCount);
+  }
+
+  return null;
 }
 
 function isEligibleRecommendationTile(
@@ -492,30 +591,6 @@ function isEligibleRecommendationTile(
   }
 
   return true;
-}
-
-function getWrongPathTile(
-  board,
-  pathIds,
-  startIndex = 0,
-  moveCount = 0,
-  { skipLocked = false } = {},
-) {
-  for (let index = startIndex; index < pathIds.length; index += 1) {
-    const tile = getTileById(board, pathIds[index]);
-
-    if (
-      isEligibleRecommendationTile(tile, moveCount, { skipLocked }) &&
-      !tileHasCorrectRotation(tile)
-    ) {
-      return {
-        tile,
-        index,
-      };
-    }
-  }
-
-  return null;
 }
 
 export function getHintRecommendation(
@@ -545,64 +620,22 @@ export function getHintRecommendation(
   }
 
   if (pathIds.length > 1) {
-    const flowState = analyzeFlow(board);
-    const reachableSet = new Set(flowState.reachable);
-    const contiguousIndex = getContiguousPathIndex(pathIds, reachableSet);
-    const frontierCandidates = [];
+    const brokenSegment = getFirstBrokenPathSegment(board, pathIds);
 
-    for (
-      let index = Math.max(0, contiguousIndex - 1);
-      index <= Math.min(pathIds.length - 1, contiguousIndex + 2);
-      index += 1
-    ) {
-      const tile = getTileById(board, pathIds[index]);
+    if (brokenSegment) {
+      const blockingRecommendation = getBrokenPathRecommendation(
+        brokenSegment,
+        moveCount,
+        { skipLocked },
+      );
 
-      if (
-        isEligibleRecommendationTile(tile, moveCount, { skipLocked }) &&
-        !tileHasCorrectRotation(tile)
-      ) {
-        frontierCandidates.push({
-          tile,
-          distance: Math.abs(index - contiguousIndex),
-          index,
-        });
+      if (blockingRecommendation) {
+        return blockingRecommendation;
       }
-    }
 
-    if (frontierCandidates.length > 0) {
-      const bestFrontierTile = [...frontierCandidates].sort((left, right) => {
-        if (left.distance !== right.distance) {
-          return left.distance - right.distance;
-        }
-
-        return left.index - right.index;
-      })[0];
-
-      return buildHintRecommendation(bestFrontierTile.tile, "frontier", moveCount);
-    }
-
-    const upcomingWrongTile = getWrongPathTile(
-      board,
-      pathIds,
-      contiguousIndex + 1,
-      moveCount,
-      { skipLocked },
-    );
-
-    if (upcomingWrongTile) {
-      return buildHintRecommendation(upcomingWrongTile.tile, "path", moveCount);
-    }
-
-    const firstWrongPathTile = getWrongPathTile(
-      board,
-      pathIds,
-      0,
-      moveCount,
-      { skipLocked },
-    );
-
-    if (firstWrongPathTile) {
-      return buildHintRecommendation(firstWrongPathTile.tile, "path", moveCount);
+      if (skipLocked) {
+        return null;
+      }
     }
   }
 

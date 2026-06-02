@@ -1,40 +1,13 @@
 const SOUND_CANDIDATES = {
-  rotate: [
-    "/assets/audio/rotate.mp3",
-    "/assets/audio/rotate.wav",
-    "/assets/audio/rotate.ogg",
-  ],
-  click: [
-    "/assets/audio/click.mp3",
-    "/assets/audio/click.wav",
-    "/assets/audio/click.ogg",
-  ],
-  hint: [
-    "/assets/audio/hint.mp3",
-    "/assets/audio/hint.wav",
-    "/assets/audio/hint.ogg",
-  ],
-  success: [
-    "/assets/audio/success.mp3",
-    "/assets/audio/success.wav",
-    "/assets/audio/success.ogg",
-  ],
-  fail: [
-    "/assets/audio/fail.mp3",
-    "/assets/audio/fail.wav",
-    "/assets/audio/fail.ogg",
-  ],
-  warning: [
-    "/assets/audio/warning.mp3",
-    "/assets/audio/warning.wav",
-    "/assets/audio/warning.ogg",
-  ],
+  // Sound effects currently use synth fallback until dedicated files are added.
+  rotate: [],
+  click: [],
+  hint: [],
+  success: [],
+  fail: [],
+  warning: [],
   music: [
-    "/assets/audio/bg-music.mp3",
     "/assets/audio/bg-music.wav",
-    "/assets/audio/background-music.mp3",
-    "/assets/audio/music-loop.mp3",
-    "/assets/audio/music-loop.ogg",
   ],
 };
 
@@ -124,6 +97,16 @@ class AudioManager {
   isMuted() {
     this.initializeSettings();
     return this.muted;
+  }
+
+  getPlaybackStatus() {
+    this.initializeSettings();
+
+    if (this.muted) {
+      return "off";
+    }
+
+    return this.backgroundEnabled ? "on" : "pending";
   }
 
   async unlock() {

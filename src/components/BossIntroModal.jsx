@@ -29,7 +29,7 @@ function BossIntroModal({
   return (
     <div className="modal-backdrop boss-intro-backdrop" role="dialog" aria-modal="true">
       <div
-        className={`modal-card boss-intro-card ${isUltra ? "is-ultra" : ""}`}
+        className={`modal-card boss-intro-card ${isUltra ?"is-ultra" : ""}`}
         style={{
           "--boss-accent": bossVisual.accent,
           "--boss-accent-soft": bossVisual.accentSoft,
@@ -45,6 +45,13 @@ function BossIntroModal({
               backgroundSize: bossVisual.heroSize,
             }}
           />
+          {bossVisual.portraitImage ? (
+            <img
+              className="boss-intro-card__hero-portrait"
+              src={bossVisual.portraitImage}
+              alt=""
+            />
+          ) : null}
           <div className="boss-intro-card__hero-chips">
             <span className="boss-intro-card__hero-chip">Boss nivo</span>
             <span className="boss-intro-card__hero-chip is-accent">
@@ -63,9 +70,9 @@ function BossIntroModal({
           <span>{levelName}</span>
         </div>
 
-        <div className="modal-card__eyebrow">{isUltra ? "Ultra hard izazov" : "Boss nivo"}</div>
+        <div className="modal-card__eyebrow">{isUltra ?"Ultra izazov" : "Boss nivo"}</div>
         <div className="modal-card__title">{bossVisual.displayName}</div>
-        {bossVisual.codename ? (
+        {bossVisual.codename ?(
           <div className="boss-intro-card__codename">{bossVisual.codename}</div>
         ) : null}
         <p className="modal-card__copy">{briefing}</p>
@@ -97,7 +104,7 @@ function BossIntroModal({
 
         <div className="modal-actions boss-intro-card__actions">
           <button type="button" className="secondary-button" onClick={handleStart}>
-            {isUltra ? "Započni ultra nivo" : "Započni nivo"}
+            {isUltra ?"Započni ultra izazov" : "Započni nivo"}
           </button>
           <button type="button" className="secondary-button is-ghost" onClick={handleClose}>
             Zatvori

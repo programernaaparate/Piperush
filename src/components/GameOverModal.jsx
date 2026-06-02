@@ -1,14 +1,16 @@
+import { showcaseArt } from "../data/showcaseArt.js";
+
 function GameOverModal({ levelName, score, onRestart, onMenu }) {
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
       <div className="modal-card">
-        <div className="modal-card__art is-warning" aria-hidden="true">
-          <img src="/assets/legacy/review-pipe.svg" alt="" />
+        <div className="modal-card__art modal-card__art--character is-warning" aria-hidden="true">
+          <img src={showcaseArt.enemyCrab} alt="" />
         </div>
         <div className="modal-card__eyebrow">Vrijeme je isteklo</div>
         <div className="modal-card__title">Mreža nije povezana na vrijeme</div>
         <p className="modal-card__copy">
-          Mreža nije povezana na vrijeme. Pokušaj ponovo ili se vrati na meni.
+          Nisi zatvorio glavni tok prije isteka vremena. Pokušaj ponovo ili se vrati na meni.
         </p>
 
         <div className="modal-stats">
@@ -26,25 +28,23 @@ function GameOverModal({ levelName, score, onRestart, onMenu }) {
           </div>
         </div>
 
-        <div className="modal-actions">
+        <div className="modal-actions modal-actions--stack">
           <button
             type="button"
-            className="modal-button"
+            className="secondary-button"
             onClick={onRestart}
             aria-label="Pokušaj ponovo"
           >
-            <img src="/assets/ui/btn-restart.png" alt="" />
-            <span className="sr-only">Pokušaj ponovo</span>
+            Pokušaj ponovo
           </button>
 
           <button
             type="button"
-            className="modal-button"
+            className="secondary-button is-ghost"
             onClick={onMenu}
             aria-label="Nazad na meni"
           >
-            <img src="/assets/ui/btn-menu.png" alt="" />
-            <span className="sr-only">Nazad na meni</span>
+            Nazad na meni
           </button>
         </div>
       </div>

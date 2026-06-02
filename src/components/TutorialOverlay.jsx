@@ -10,9 +10,9 @@ function TutorialOverlay({ onContinue }) {
     <div className="modal-backdrop tutorial-backdrop" role="dialog" aria-modal="true">
       <div className="modal-card tutorial-card">
         <div className="modal-card__eyebrow">Prvi ulazak</div>
-        <div className="modal-card__title">Kako radi PipeRush</div>
+        <div className="modal-card__title">Kako se igra</div>
         <p className="modal-card__copy">
-          Klikni cijev da je okreneš za 90 stepeni, poveži START sa END i zatvori tok
+          Klikni cijev da je okreneš za 90 stepeni, poveži ULAZ sa IZLAZOM i zatvori tok
           prije isteka vremena.
         </p>
 
@@ -38,7 +38,7 @@ function TutorialOverlay({ onContinue }) {
             <span className="tutorial-step__index">03</span>
             <div>
               <strong>Pojačanja</strong>
-              <p>Overclock dodaje vrijeme, a Stabilizator poravnava jednu važnu cijev.</p>
+              <p>Ubrzanje dodaje vrijeme, a Stabilizator poravnava jednu ključnu cijev.</p>
             </div>
           </div>
         </div>

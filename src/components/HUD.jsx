@@ -102,7 +102,7 @@ function HUD({
   const actionButtons = [
     {
       key: "hint",
-      label: "Hint",
+      label: "Savjet",
       icon: "hint",
       disabled: !canUseHint,
       onClick: onHint,
@@ -111,7 +111,7 @@ function HUD({
     },
     {
       key: "restart",
-      label: "Restart",
+      label: "Ponovi",
       icon: "restart",
       disabled: false,
       onClick: onRestart,
@@ -120,7 +120,7 @@ function HUD({
     },
     {
       key: "pause",
-      label: isPaused ? "Resume" : "Pause",
+      label: isPaused ? "Nastavi" : "Pauza",
       icon: isPaused ? "play" : "pause",
       disabled: false,
       onClick: onPauseToggle,
@@ -129,7 +129,7 @@ function HUD({
     },
     {
       key: "menu",
-      label: "Menu",
+      label: "Meni",
       icon: "menu",
       disabled: false,
       onClick: onMenu,
@@ -196,7 +196,7 @@ function HUD({
         >
           <span className="powerup-chip__badge">+T</span>
           <span className="powerup-chip__content">
-            <span className="powerup-chip__title">Overclock</span>
+            <span className="powerup-chip__title">Ubrzanje</span>
             <span className="powerup-chip__copy">Dodaje vrijeme</span>
           </span>
           <span className="powerup-chip__count">x{powerUps.boost ?? 0}</span>

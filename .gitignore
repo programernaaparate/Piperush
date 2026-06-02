@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+/.codex-*.png
+/.hud-*.png
+/.app-refresh-*.png
+/.codex-topbar-*.png
+/.codex-ultra-*.png
+/.codex-status-card-*.png

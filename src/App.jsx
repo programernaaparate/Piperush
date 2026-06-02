@@ -60,7 +60,7 @@ const CRITICAL_IMAGE_ASSETS = [
 
 function App() {
   const debugStart = readDebugStart();
-  const [isBooting, setIsBooting] = useState(true);
+  const [isBooting, setIsBooting] = useState(() => typeof window !== "undefined");
   const [progress, setProgress] = useState(() => {
     const initialProgress = readProgress();
 
@@ -75,6 +75,7 @@ function App() {
     audioManager.initializeSettings();
     return audioManager.isMuted();
   });
+  const [audioStatus, setAudioStatus] = useState(() => audioManager.getPlaybackStatus());
   const [screen, setScreen] = useState(() => (debugStart ? "game" : "menu"));
   const [selectedDifficulty, setSelectedDifficulty] = useState(
     () => debugStart?.difficulty ?? progress.lastDifficulty ?? "easy",
@@ -87,7 +88,6 @@ function App() {
 
   useEffect(() => {
     if (typeof window === "undefined") {
-      setIsBooting(false);
       return undefined;
     }
 
@@ -122,6 +122,44 @@ function App() {
   }, [progress]);
 
   useEffect(() => {
+    if (typeof window === "undefined" || audioMuted) {
+      return undefined;
+    }
+
+    let disposed = false;
+
+    const syncAudioStatus = () => {
+      if (!disposed) {
+        setAudioStatus(audioManager.getPlaybackStatus());
+      }
+    };
+
+    const primeAudioFromInteraction = (event) => {
+      const target = event.target;
+
+      if (target instanceof Element && target.closest("[data-audio-control='toggle']")) {
+        return;
+      }
+
+      audioManager
+        .unlock()
+        .then(() => audioManager.startBackground())
+        .catch(() => {})
+        .finally(syncAudioStatus);
+    };
+
+    audioManager.startBackground().catch(() => {}).finally(syncAudioStatus);
+    window.addEventListener("pointerdown", primeAudioFromInteraction, { passive: true });
+    window.addEventListener("keydown", primeAudioFromInteraction);
+
+    return () => {
+      disposed = true;
+      window.removeEventListener("pointerdown", primeAudioFromInteraction);
+      window.removeEventListener("keydown", primeAudioFromInteraction);
+    };
+  }, [audioMuted]);
+
+  useEffect(() => {
     if (typeof document === "undefined") {
       return undefined;
     }
@@ -133,7 +171,9 @@ function App() {
       }
 
       if (!audioMuted) {
-        audioManager.resumeBackground().catch(() => {});
+        audioManager.resumeBackground().catch(() => {}).finally(() => {
+          setAudioStatus(audioManager.getPlaybackStatus());
+        });
       }
     };
 
@@ -249,7 +289,7 @@ function App() {
 
   function handleResetProgress() {
     resetStoredProgress();
-    const nextProgress = createDefaultProgress();
+    const nextProgress = createDefaultProgress(progress.playerName);
     setProgress(nextProgress);
     setSelectedDifficulty(nextProgress.lastDifficulty);
     setStartingLevelIndex(0);
@@ -259,7 +299,7 @@ function App() {
   async function handleToggleAudio() {
     const wasMuted = audioManager.isMuted();
 
-    if (!wasMuted) {
+    if (!wasMuted && audioStatus === "on") {
       await audioManager.playClick().catch(() => {});
     }
 
@@ -270,6 +310,8 @@ function App() {
       await audioManager.startBackground().catch(() => {});
       await audioManager.playClick().catch(() => {});
     }
+
+    setAudioStatus(audioManager.getPlaybackStatus());
   }
 
   function handleReturnToMenu() {
@@ -281,13 +323,18 @@ function App() {
   }
 
   return (
-    <div className={`app-shell ${isBooting ? "is-booting" : "is-ready"}`}>
+    <div
+      className={`app-shell app-shell--${screen} app-shell--${selectedDifficulty} ${
+        isBooting ? "is-booting" : "is-ready"
+      }`}
+    >
       <div className="app-shell__veil" aria-hidden="true" />
       <div className="app-shell__stage">
         {screen === "menu" ? (
           <MainMenu
             progress={progress}
             audioMuted={audioMuted}
+            audioStatus={audioStatus}
             selectedDifficulty={selectedDifficulty}
             onSelectDifficulty={handleSelectDifficulty}
             onToggleAudio={handleToggleAudio}
@@ -302,6 +349,7 @@ function App() {
             startingLevelIndex={startingLevelIndex}
             progress={progress}
             audioMuted={audioMuted}
+            audioStatus={audioStatus}
             onExitToMenu={handleReturnToMenu}
             onTrackLevel={handleTrackLevel}
             onToggleAudio={handleToggleAudio}

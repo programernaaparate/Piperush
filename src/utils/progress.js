@@ -5,8 +5,10 @@ import {
 } from "../data/levels.js";
 
 const STORAGE_KEY = "piperush-progress-v1";
+const PLAYER_NAME_STORAGE_KEY = "piperush-player-name-v1";
 const DEFAULT_DIFFICULTY = "easy";
-const DEFAULT_PLAYER_NAME = "IGRAČ";
+const DEFAULT_PLAYER_NAME = "";
+const FALLBACK_PLAYER_NAME = "Igrač";
 const PLAYER_NAME_LIMIT = 12;
 const LEGACY_TEXT_REPAIRS = [
   ["Ã„Â", "č"],
@@ -32,6 +34,7 @@ function createLevelState() {
     bestStars: 0,
     bestTimeLeft: 0,
     bestMoves: null,
+    bestPlayerName: DEFAULT_PLAYER_NAME,
   };
 }
 
@@ -48,7 +51,41 @@ function sanitizePlayerName(value) {
     .trim()
     .slice(0, PLAYER_NAME_LIMIT);
 
-  return normalized || DEFAULT_PLAYER_NAME;
+  if (!normalized || normalized === "IGRAČ") {
+    return DEFAULT_PLAYER_NAME;
+  }
+
+  return normalized;
+}
+
+function readStoredPlayerName() {
+  if (typeof window === "undefined") {
+    return DEFAULT_PLAYER_NAME;
+  }
+
+  try {
+    return sanitizePlayerName(window.localStorage.getItem(PLAYER_NAME_STORAGE_KEY));
+  } catch {
+    return DEFAULT_PLAYER_NAME;
+  }
+}
+
+function writeStoredPlayerName(playerName) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    const normalizedName = sanitizePlayerName(playerName);
+
+    if (normalizedName) {
+      window.localStorage.setItem(PLAYER_NAME_STORAGE_KEY, normalizedName);
+    } else {
+      window.localStorage.removeItem(PLAYER_NAME_STORAGE_KEY);
+    }
+  } catch {
+    // Ignore storage failures so the game remains playable.
+  }
 }
 
 function createDifficultyState(levels) {
@@ -59,11 +96,11 @@ function createDifficultyState(levels) {
   };
 }
 
-export function createDefaultProgress() {
+export function createDefaultProgress(playerName = DEFAULT_PLAYER_NAME) {
   return {
-    version: 2,
+    version: 3,
     lastDifficulty: DEFAULT_DIFFICULTY,
-    playerName: DEFAULT_PLAYER_NAME,
+    playerName: sanitizePlayerName(playerName),
     tutorialSeen: false,
     difficulties: Object.fromEntries(
       Object.entries(levelsByDifficulty).map(([difficulty, levels]) => [
@@ -107,6 +144,7 @@ function sanitizeDifficultyState(candidate, levels) {
             source?.bestMoves === null || source?.bestMoves === undefined
               ? null
               : Math.max(Number(source.bestMoves) || 0, 0),
+          bestPlayerName: sanitizePlayerName(source?.bestPlayerName),
         },
       ];
     }),
@@ -119,16 +157,18 @@ function sanitizeDifficultyState(candidate, levels) {
   };
 }
 
-function sanitizeProgress(candidate) {
-  const fallback = createDefaultProgress();
+function sanitizeProgress(candidate, storedPlayerName = DEFAULT_PLAYER_NAME) {
+  const fallback = createDefaultProgress(storedPlayerName);
 
   if (!candidate || typeof candidate !== "object") {
     return fallback;
   }
 
+  const progressPlayerName = sanitizePlayerName(candidate.playerName);
+
   return {
-    version: 2,
-    playerName: sanitizePlayerName(candidate.playerName),
+    version: 3,
+    playerName: storedPlayerName || progressPlayerName,
     tutorialSeen: Boolean(candidate.tutorialSeen),
     lastDifficulty: levelsByDifficulty[candidate.lastDifficulty]
       ? candidate.lastDifficulty
@@ -147,16 +187,18 @@ export function readProgress() {
     return createDefaultProgress();
   }
 
+  const storedPlayerName = readStoredPlayerName();
+
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
 
     if (!raw) {
-      return createDefaultProgress();
+      return createDefaultProgress(storedPlayerName);
     }
 
-    return sanitizeProgress(JSON.parse(raw));
+    return sanitizeProgress(JSON.parse(raw), storedPlayerName);
   } catch {
-    return createDefaultProgress();
+    return createDefaultProgress(storedPlayerName);
   }
 }
 
@@ -166,7 +208,9 @@ export function writeProgress(progress) {
   }
 
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    const sanitizedProgress = sanitizeProgress(progress, sanitizePlayerName(progress.playerName));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizedProgress));
+    writeStoredPlayerName(sanitizedProgress.playerName);
   } catch {
     // Ignore storage failures so the game remains playable.
   }
@@ -254,7 +298,10 @@ export function getLeaderboardEntries(
 
       entries.push({
         id: `${difficultyKey}-${level.id}`,
-        playerName: progress.playerName ?? DEFAULT_PLAYER_NAME,
+        playerName:
+          levelState.bestPlayerName?.trim() ||
+          progress.playerName?.trim() ||
+          FALLBACK_PLAYER_NAME,
         difficulty: difficultyKey,
         difficultyLabel: difficultyConfig[difficultyKey]?.label ?? difficultyKey,
         levelId: level.id,
@@ -360,6 +407,27 @@ export function markTutorialSeen(progress) {
   };
 }
 
+function isCandidateRecordBetter(currentLevelProgress, candidateResult) {
+  if (!currentLevelProgress.completed) {
+    return true;
+  }
+
+  if (candidateResult.score !== currentLevelProgress.bestScore) {
+    return candidateResult.score > currentLevelProgress.bestScore;
+  }
+
+  if (candidateResult.stars !== currentLevelProgress.bestStars) {
+    return candidateResult.stars > currentLevelProgress.bestStars;
+  }
+
+  if (candidateResult.timeLeft !== currentLevelProgress.bestTimeLeft) {
+    return candidateResult.timeLeft > currentLevelProgress.bestTimeLeft;
+  }
+
+  return (candidateResult.moves ?? Number.MAX_SAFE_INTEGER) <
+    (currentLevelProgress.bestMoves ?? Number.MAX_SAFE_INTEGER);
+}
+
 export function recordLevelCompletion(
   progress,
   { difficulty, levelId, levelIndex, score, stars, timeLeft, moves },
@@ -376,6 +444,12 @@ export function recordLevelCompletion(
     levelIndex >= levels.length - 1
       ? levels.length - 1
       : clamp(levelIndex + 1, 0, unlockedLevelCount - 1);
+  const candidateRecord = { score, stars, timeLeft, moves };
+  const shouldReplaceRecord = isCandidateRecordBetter(currentLevelProgress, candidateRecord);
+  const bestPlayerName =
+    shouldReplaceRecord
+      ? progress.playerName?.trim() || FALLBACK_PLAYER_NAME
+      : currentLevelProgress.bestPlayerName || progress.playerName?.trim() || FALLBACK_PLAYER_NAME;
 
   return {
     ...progress,
@@ -392,13 +466,11 @@ export function recordLevelCompletion(
           ...difficultyProgress.levels,
           [levelId]: {
             completed: true,
-            bestScore: Math.max(currentLevelProgress.bestScore, score),
-            bestStars: Math.max(currentLevelProgress.bestStars, stars),
-            bestTimeLeft: Math.max(currentLevelProgress.bestTimeLeft, timeLeft),
-            bestMoves:
-              currentLevelProgress.bestMoves === null
-                ? moves
-                : Math.min(currentLevelProgress.bestMoves, moves),
+            bestScore: shouldReplaceRecord ? score : currentLevelProgress.bestScore,
+            bestStars: shouldReplaceRecord ? stars : currentLevelProgress.bestStars,
+            bestTimeLeft: shouldReplaceRecord ? timeLeft : currentLevelProgress.bestTimeLeft,
+            bestMoves: shouldReplaceRecord ? moves : currentLevelProgress.bestMoves,
+            bestPlayerName,
           },
         },
       },

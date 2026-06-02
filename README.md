@@ -1,51 +1,102 @@
 # PipeRush
 
-PipeRush je futuristička puzzle-arkadna igra u kojoj igrač rotira cijevi i pokušava da poveže `START` sa `END` prije isteka vremena. Projekat je napravljen kao ozbiljna univerzitetska demo igra u React + Vite okruženju, sa kampanjom, nivoima težine, boss nivoima, animiranim tokom, zvukom i lokalnim progresom.
+PipeRush je inovirana verzija klasične puzzle igre tipa `Pipeline`. Cilj igrača je da rotiranjem cijevi poveže `ULAZ` sa `IZLAZOM` prije isteka vremena i tako stabilizuje mrežu. Projekat je razvijen kao studentska tema iz računarske grafike, sa novim vizuelnim identitetom, AI-generisanim artom, kampanjom sa nivoima težine, boss nivoima, power-up sistemom, rang listom i lokalnim čuvanjem progresa.
 
-## Glavne funkcije
+## Predajni sažetak
 
-- `Kampanja` sa ukupno `27` nivoa:
-  - `9 Lako`
-  - `9 Srednje`
-  - `9 Teško`
-- `Dnevni izazov`
-- `Boss nivoi` sa posebnim mehanikama
-- `Hint` sistem zasnovan na tačnoj rotaciji cijevi
-- `Rezultat`, `vrijeme`, `potezi`, `savjeti`
-- `Pauza`, `restart`, `meni`, `sljedeći nivo`
-- `Rang lista` i lokalni progres preko `localStorage`
-- različite pozadine po težini i posebnim nivoima
-- siguran audio sistem sa `Zvuk: ON/OFF`
+- Tema: `Pipeline`
+- Repozitorijum: [https://github.com/programernaaparate/PipeRush](https://github.com/programernaaparate/PipeRush)
+- Promo materijal: kratki promo video `15–30s` je pripremljen kao zaseban fajl za predaju
+- Tehnologije: `React`, `Vite`, `JavaScript`, `CSS`, `localStorage`
 
-## Vizuelni identitet
+## Opis igre
 
-PipeRush koristi plavo/cijan cyber-pipeline okruženje:
+U igri PipeRush igrač dobija mrežu cijevi koje su djelimično pogrešno orijentisane. Klikom na cijevi mijenja njihovu rotaciju i pokušava da napravi ispravan tok energije od početne do završne tačke. Svaki nivo ima vremensko ograničenje, cilj u broju poteza i ograničen broj savjeta. Što je igrač brži i precizniji, to dobija bolji rezultat i više medalja.
 
-- tamna navy pozadina
-- cijan glow i staklaste panele
-- glossy UI dugmad i paneli
-- animirani tok kroz cijevi
-- responsive board koji ostaje čitljiv i na većim i na manjim ekranima
+Osnovna mehanika je inspirisana originalnom igrom Pipeline, ali je kompletno prenesena u moderni futuristički kontekst. Umjesto jednostavne klasične table, PipeRush koristi neon-industrijski interfejs, animirani tok energije, više režima težine i posebne prepreke koje mijenjaju način igranja.
 
-## Kontrole
+## Inovacije u odnosu na original
 
-- klik na cijev: rotacija za `90°`
-- `Savjet`: označava jednu bitnu pogrešno rotiranu cijev
-- `Restart`: vraća trenutni nivo na početno stanje
-- `Pauza`: zaustavlja tajmer
-- `Meni`: povratak na početni ekran
-- `Zvuk`: uključivanje i isključivanje muzike i efekata
+U odnosu na osnovnu Pipeline ideju, PipeRush uvodi više slojeva gameplay-a i prezentacije:
+
+- `3` pune kampanje težine: `Lako`, `Srednje`, `Teško`
+- ukupno `42` kampanjska nivoa, plus `1` dnevni izazov
+- `4` boss nivoa, uključujući `1` ultra završnicu
+- posebne mehanike polja:
+  - zaključane cijevi
+  - rotorske cijevi
+  - oštećene cijevi
+- power-up sistem:
+  - `Ubrzanje` dodaje vrijeme
+  - `Stabilizator` automatski poravnava ključnu cijev
+- sistem savjeta zasnovan na analizi glavne rute
+- dnevni izazov
+- lokalna rang lista
+- čuvanje progresa i imena igrača između sesija
+- boss događaji koji mijenjaju tok partije tokom igranja
+
+Na taj način igra nije samo kopija originala, već proširena i modernizovana verzija sa jačim identitetom, većom replay vrednošću i većim brojem mehanika.
+
+## Novi vizuelni identitet
+
+Vizuelni identitet igre je potpuno nov i razvijen uz pomoć AI alata. U projektu su osmišljeni:
+
+- logo igre `PipeRush`
+- sprites i ilustracije pomoćnih i boss likova
+- kompletan UI stil panela, dugmadi i modala
+- futurističke pozadine za meni, obične nivoe i boss nivoe
+- specijalni vizuelni prikazi za ultra završnicu
+
+Likovni stil kombinuje `cyber-industrial` estetiku, sjajne plave cijevi, neon glow efekte i tamne tehničke pozadine. Cilj je bio da igra odmah izgleda kao nova i autorska verzija Pipeline ideje.
+
+## AI zvuk i muzika
+
+Audio sistem uključuje:
+
+- pozadinsku muziku za igru
+- zvučne efekte za klik, rotaciju, upozorenja, savjet i završetak nivoa
+- rezervni sintetički sistem efekata ako neki spoljašnji fajl nije dostupan
+
+Ovim je obezbijeđeno da igra i u prezentaciji ima kompletniji audiovizuelni identitet.
+
+## Upotreba AI asistenta
+
+Tokom razvoja korišćen je AI asistent za:
+
+- generisanje djelova koda
+- pomoć pri debagovanju gameplay i UI problema
+- ideje za raspored nivoa i sistem težine
+- doradu tekstova, opisa i UX toka
+- planiranje vizuelnog identiteta i prezentacije
+
+Korišćeni AI alati i pristupi:
+
+- `ChatGPT / Codex` za kod, debugging i refaktorisanje
+- AI image alati za logo, sprites, UI ilustracije i pozadine
+- AI video alat za promo video
+
+Ako si za slike ili promo video koristio konkretan alat kao `Canva`, `Sora`, `Nano Banana` ili drugi, isti naziv navedi i u usmenoj prezentaciji.
+
+## Screenshotovi igre
+
+### Gameplay sa HUD-om
+
+![Gameplay HUD](docs/screenshots/gameplay-hud.png)
+
+### Tabla i glavni tok
+
+![Gameplay Board](docs/screenshots/gameplay-board.png)
+
+### Desni status panel i cilj nivoa
+
+![Gameplay Status](docs/screenshots/gameplay-status.png)
 
 ## Pokretanje projekta
-
-U folderu projekta pokreni:
 
 ```powershell
 npm install
 npm run dev
 ```
-
-Zatim otvori lokalni link koji Vite ispiše u terminalu.
 
 Za produkcioni build:
 
@@ -62,86 +113,26 @@ Najvažniji fajlovi:
 - `src/components/GameBoard.jsx`
 - `src/components/Tile.jsx`
 - `src/components/HUD.jsx`
-- `src/components/LevelCompleteModal.jsx`
-- `src/components/GameOverModal.jsx`
-- `src/components/PauseModal.jsx`
 - `src/components/LevelSelectModal.jsx`
 - `src/components/LeaderboardModal.jsx`
+- `src/components/LevelCompleteModal.jsx`
+- `src/components/GameOverModal.jsx`
 - `src/data/levels.js`
 - `src/utils/pipeLogic.js`
-- `src/utils/levelValidator.js`
 - `src/utils/audio.js`
 - `src/utils/progress.js`
 
-## Logika igre
-
-PipeRush koristi validaciju cijevi preko BFS/DFS pristupa:
-
-- kreće od `START` cijevi
-- prati samo validne veze između susednih polja
-- proverava da li i susedna cijev vraća vezu nazad
-- kad se stigne do `END`, nivo je riješen
-
-Svaki nivo sadrži:
-
-- `id`
-- `difficulty`
-- `size`
-- `timeLimit`
-- `hints`
-- `background`
-- `grid`
-- `correctRotation`
-
-## Nivoi i validacija
-
-Nivoi nisu nasumični. Svaki nivo je planski složen:
-
-1. prvo se definiše tačna ruta od `START` do `END`
-2. zatim se rotiraju ključne cijevi
-3. dodaju se lažne rute, blokade i dead-end polja
-4. validator proverava da nivo:
-   - nije već riješen
-   - postaje riješen sa `correctRotation`
-   - ima ispravnu veličinu
-   - ima tačno jedan `START` i jedan `END`
-
-## Audio
-
-Audio sistem podržava:
-
-- pozadinsku muziku
-- zvuk rotacije
-- success/fail efekte
-- klik i hint zvuk
-
-Ako neki audio fajl ne postoji, igra ne puca, već koristi bezbedan fallback ili ostaje tiha.
-
-## AI alati korišćeni u projektu
-
-U razvoju su korišćeni AI alati za:
-
-- generisanje i doradu delova koda
-- debagovanje UI i gameplay problema
-- predloge za level design
-- doradu UX toka i vizuelnog polisha
-- generisanje i integraciju zvučne podloge
-
-## Ideje za prezentaciju
-
-Za kratku demonstraciju od 5 minuta možeš pokazati:
-
-1. glavni meni i izbor težine
-2. campaign mapu i izbor nivoa
-3. jedan `Lako` nivo za osnovni gameplay
-4. jedan `Teško` ili `Boss` nivo za posebne mehanike
-5. rang listu, progres i lokalno čuvanje rezultata
-
 ## Napomena za predaju
 
-U README po potrebi dopiši:
+Uz repozitorijum i sam projekat potrebno je predati:
 
-- link do GitHub repozitorijuma
+- promo video
+- kratku prezentaciju
+- opis igre i inovacija
+- navedene AI alate
 - screenshotove igre
-- promo GIF ili video
-- kratko poređenje sa originalnom verzijom igre
+
+Za to su u projektu pripremljeni i fajlovi:
+
+- [PREDAJA.md](./PREDAJA.md)
+- [PRESENTATION.md](./PRESENTATION.md)

@@ -5,6 +5,7 @@ import {
   isRotatable,
   isTileLocked,
 } from "../utils/pipeLogic.js";
+import BossPipeArt from "./BossPipeArt.jsx";
 
 const tileAssets = {
   straight: "/assets/pipes/pipe-straight.png",
@@ -30,6 +31,19 @@ const tileGlowAssets = {
   valve: "/assets/pipes/pipe-valve-transparent.png",
 };
 
+const tileTypeLabels = {
+  straight: "prava",
+  corner: "krivina",
+  t: "T-spoj",
+  cross: "ukrštanje",
+  start: "ulaz",
+  end: "izlaz",
+  empty: "prazno polje",
+  blocked: "blokirano polje",
+  "dead-end": "slijepi kraj",
+  valve: "ventil",
+};
+
 function Tile({
   tile,
   isOnPath,
@@ -41,38 +55,42 @@ function Tile({
   flowLength,
   moveCount,
   fxType = "",
+  pipeTheme = "default",
   onRotate,
 }) {
   const rotatable = isRotatable(tile);
   const glowAsset = tileGlowAssets[tile.type];
+  const useBossPipeTheme = pipeTheme !== "default";
   const isLocked = isTileLocked(tile, moveCount);
   const lockMovesRemaining = getLockMovesRemaining(tile, moveCount);
   const isAuto = isAutoRotateTile(tile);
   const isDamaged = isDamagedTile(tile);
-  const modifierLabel = isLocked ? `L${lockMovesRemaining}` : isAuto ? "R" : isDamaged ? "!" : "";
+  const modifierLabel = isLocked ?`L${lockMovesRemaining}` : isAuto ?"R" : isDamaged ?"!" : "";
   const modifierTitle = isLocked
-    ? `Zaključana cijev: još ${lockMovesRemaining} poteza`
+    ?`Zaključana cijev: još ${lockMovesRemaining} poteza`
     : isAuto
-      ? "Rotor cijev"
+      ?"Rotor cijev"
       : isDamaged
-        ? "Oštećena cijev"
+        ?"Oštećena cijev"
         : "";
+  const tileTypeLabel = tileTypeLabels[tile.type] ?? tile.type;
 
   const className = [
     "tile",
     `tile--${tile.type}`,
-    isOnPath ? "tile--path" : "",
-    isHinted ? "tile--hinted" : "",
-    isSolved && isOnPath ? "tile--solved" : "",
-    isOnPath || isHinted ? "tile--energized" : "",
-    tile.modifier === "locked" ? "tile--locked" : "",
-    isLocked ? "tile--locked-active" : "",
-    isAuto ? "tile--auto" : "",
-    isDamaged ? "tile--damaged" : "",
-    tile.type === "start" ? "tile--start" : "",
-    tile.type === "end" ? "tile--end" : "",
-    isSolved && tile.type === "end" ? "tile--end-burst" : "",
-    fxType ? `tile--fx-${fxType}` : "",
+    isOnPath ?"tile--path" : "",
+    isHinted ?"tile--hinted" : "",
+    isSolved && isOnPath ?"tile--solved" : "",
+    isOnPath || isHinted ?"tile--energized" : "",
+    tile.modifier === "locked" ?"tile--locked" : "",
+    isLocked ?"tile--locked-active" : "",
+    isAuto ?"tile--auto" : "",
+    isDamaged ?"tile--damaged" : "",
+    tile.type === "start" ?"tile--start" : "",
+    tile.type === "end" ?"tile--end" : "",
+    isSolved && tile.type === "end" ?"tile--end-burst" : "",
+    fxType ?`tile--fx-${fxType}` : "",
+    useBossPipeTheme ?`tile--theme-${pipeTheme}` : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -89,24 +107,24 @@ function Tile({
       }}
       aria-label={
         isHinted && hintBadgeLabel
-          ? `Cijev tipa ${tile.type}, savjet ${hintBadgeLabel}`
+          ?`Cijev ${tileTypeLabel}, savjet ${hintBadgeLabel}`
           : isLocked
-            ? `Cijev tipa ${tile.type}, zaključana još ${lockMovesRemaining} poteza`
+            ?`Cijev ${tileTypeLabel}, zaključana još ${lockMovesRemaining} poteza`
             : isAuto
-              ? `Cijev tipa ${tile.type}, samorotirajuća`
+              ?`Cijev ${tileTypeLabel}, rotorska`
               : isDamaged
-                ? `Cijev tipa ${tile.type}, oštećena`
-                : `Cijev tipa ${tile.type}`
+                ?`Cijev ${tileTypeLabel}, oštećena`
+                : `Cijev ${tileTypeLabel}`
       }
-      title={modifierTitle || (tile.type === "start" ? "Početni ulaz" : tile.type === "end" ? "Krajnji izlaz" : "")}
+      title={modifierTitle || (tile.type === "start" ?"Početni ulaz" : tile.type === "end" ?"Krajnji izlaz" : "")}
     >
-      {modifierLabel ? (
+      {modifierLabel ?(
         <span
           className={`tile__modifier-badge ${
             isLocked
-              ? "tile__modifier-badge--locked"
+              ?"tile__modifier-badge--locked"
               : isAuto
-                ? "tile__modifier-badge--auto"
+                ?"tile__modifier-badge--auto"
                 : "tile__modifier-badge--damaged"
           }`}
           title={modifierTitle}
@@ -116,21 +134,21 @@ function Tile({
         </span>
       ) : null}
 
-      {tile.type === "start" ? (
+      {tile.type === "start" ?(
         <span className="tile__terminal-label tile__terminal-label--start" aria-hidden="true">
-          START
+          ULAZ
         </span>
       ) : null}
 
-      {tile.type === "end" ? (
+      {tile.type === "end" ?(
         <span className="tile__terminal-label tile__terminal-label--end" aria-hidden="true">
-          END
+          IZLAZ
         </span>
       ) : null}
 
-      {isLocked ? <span className="tile__lock-ring" aria-hidden="true" /> : null}
+      {isLocked ?<span className="tile__lock-ring" aria-hidden="true" /> : null}
 
-      {fxType ? (
+      {fxType ?(
         <span className={`tile__fx-layer tile__fx-layer--${fxType}`} aria-hidden="true">
           <span className="tile__fx-core" />
           <span className="tile__fx-shard tile__fx-shard--a" />
@@ -145,13 +163,13 @@ function Tile({
         </span>
       ) : null}
 
-      {isHinted && hintBadgeLabel ? (
+      {isHinted && hintBadgeLabel ?(
         <span className="tile__hint-badge" aria-hidden="true">
           {hintBadgeLabel}
         </span>
       ) : null}
 
-      {isOnPath ? (
+      {isOnPath ?(
         <span
           className="tile__flow-layer"
           aria-hidden="true"
@@ -167,11 +185,11 @@ function Tile({
             />
           ))}
           <span className="tile__flow-core" />
-          {isSolved ? (
+          {isSolved ?(
             <>
               <span className="tile__spark tile__spark--a" />
               <span className="tile__spark tile__spark--b" />
-              {tile.type === "end" ? <span className="tile__end-burst" /> : null}
+              {tile.type === "end" ?<span className="tile__end-burst" /> : null}
             </>
           ) : null}
         </span>
@@ -181,10 +199,25 @@ function Tile({
         className="tile__image-wrap"
         style={{ transform: `rotate(${tile.rotation}deg)` }}
       >
-        <img className="tile__image" src={tileAssets[tile.type]} alt="" />
-        {glowAsset && (isOnPath || isHinted) ? (
-          <img className="tile__image tile__image--glow" src={glowAsset} alt="" />
-        ) : null}
+        {useBossPipeTheme ?(
+          <>
+            <BossPipeArt type={tile.type} variant={pipeTheme} className="tile__boss-art" />
+            {tile.type !== "empty" && tile.type !== "blocked" && (isOnPath || isHinted) ?(
+              <BossPipeArt
+                type={tile.type}
+                variant={pipeTheme}
+                className="tile__boss-art tile__boss-art--glow"
+              />
+            ) : null}
+          </>
+        ) : (
+          <>
+            <img className="tile__image" src={tileAssets[tile.type]} alt="" />
+            {glowAsset && (isOnPath || isHinted) ?(
+              <img className="tile__image tile__image--glow" src={glowAsset} alt="" />
+            ) : null}
+          </>
+        )}
       </span>
     </button>
   );

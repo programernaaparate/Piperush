@@ -1,0 +1,52 @@
+export const showcaseArt = {
+  menuHeroScene: "/assets/showcase/menu-hero-scene.png",
+  playerCardBot: "/assets/showcase/bot-player-card.png",
+  dailyBot: "/assets/showcase/daily-bot.png",
+  leaderboardDrone: "/assets/showcase/leaderboard-drone-blue.png",
+  droneHelperBright: "/assets/showcase/drone-helper-bright.png",
+  droneHelperDark: "/assets/showcase/drone-helper-dark.png",
+  botWrenchCompact: "/assets/showcase/bot-wrench-compact.png",
+  botWrenchHero: "/assets/showcase/bot-wrench-hero.png",
+  botVictory: "/assets/showcase/bot-victory.png",
+  enemyCrab: "/assets/showcase/enemy-crab.png",
+  titleCard: "/assets/showcase/title-card.png",
+};
+
+export const showcaseBossArtById = {
+  aegis: {
+    heroImage: "/assets/backgrounds/bg-aegis-reactor-frame.svg",
+    previewImage: "/assets/backgrounds/bg-aegis-reactor-frame.svg",
+    portraitImage: "/assets/showcase/boss-aegis-portrait.png",
+    heroPosition: "center",
+    previewPosition: "center",
+    portraitPosition: "center 56%",
+    portraitSize: "contain",
+  },
+  gyro: {
+    heroImage: "/assets/backgrounds/bg-gyro-reactor-frame.svg",
+    previewImage: "/assets/backgrounds/bg-gyro-reactor-frame.svg",
+    portraitImage: "/assets/showcase/boss-gyro-portrait.png",
+    heroPosition: "center",
+    previewPosition: "center",
+    portraitPosition: "center 58%",
+    portraitSize: "contain",
+  },
+  warden: {
+    heroImage: "/assets/backgrounds/bg-warden-reactor-frame.svg",
+    previewImage: "/assets/backgrounds/bg-warden-reactor-frame.svg",
+    portraitImage: "/assets/showcase/boss-warden-portrait.png",
+    heroPosition: "center",
+    previewPosition: "center",
+    portraitPosition: "center 56%",
+    portraitSize: "contain",
+  },
+  singularity: {
+    heroImage: "/assets/showcase/boss-singularity-scene.png",
+    previewImage: "/assets/showcase/boss-singularity-scene.png",
+    portraitImage: "/assets/showcase/boss-singularity-portrait.png",
+    heroPosition: "center",
+    previewPosition: "center",
+    portraitPosition: "center 56%",
+    portraitSize: "contain",
+  },
+};

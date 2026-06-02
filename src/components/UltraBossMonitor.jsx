@@ -78,13 +78,13 @@ function getBossLine({
 
   if (reaction === "point") {
     return isCritical
-      ? "Pritisak raste. Sad se lomi partija i svaki zavoj može da mi sruši plan."
+      ?"Pritisak raste. Sad se lomi partija i svaki zavoj može da mi sruši plan."
       : "Vidim šta radiš. Glavni tok ti je otvoren i skoro si prošao kroz jezgro.";
   }
 
   if (reaction === "angry") {
     return progress >= 40
-      ? "Nervira me kako čistiš lažne grane. Polako dolaziš do pravog prstena."
+      ?"Nervira me kako čistiš lažne grane. Polako dolaziš do pravog prstena."
       : "Nemoj da mi poravnaš srednji kanal. Tu počinje pravi put kroz reaktor.";
   }
 
@@ -121,7 +121,7 @@ function UltraBossMonitor({
   });
   const tensionValue = Math.min(
     100,
-    progress + bossWaves * 9 + (isCritical ? 14 : 0) + (isBossEventActive ? 12 : 0),
+    progress + bossWaves * 9 + (isCritical ?14 : 0) + (isBossEventActive ?12 : 0),
   );
   const showSteam = isBossEventActive || reaction === "point" || reaction === "rage";
   const showCrack = isBossEventActive || reaction === "rage";
@@ -130,14 +130,14 @@ function UltraBossMonitor({
 
   return (
     <section
-      className={`ultra-boss-monitor is-${reaction} ${isBossEventActive ? "is-alert" : ""} ${
-        isSolved ? "is-solved" : ""
-      } ${isGameOver ? "is-game-over" : ""}`}
-      aria-label="Ultra boss nadzor"
+      className={`ultra-boss-monitor is-${reaction} ${isBossEventActive ?"is-alert" : ""} ${
+        isSolved ?"is-solved" : ""
+      } ${isGameOver ?"is-game-over" : ""}`}
+      aria-label="Ultra nadzor"
     >
       <div className="ultra-boss-monitor__header">
         <div>
-          <div className="ultra-boss-monitor__eyebrow">Ultra boss nadzor</div>
+          <div className="ultra-boss-monitor__eyebrow">Ultra nadzor</div>
           <div className="ultra-boss-monitor__title">{levelName}</div>
         </div>
         <div className="ultra-boss-monitor__badge">{moodLabel}</div>
@@ -153,7 +153,7 @@ function UltraBossMonitor({
           src={portraitByReaction[reaction]}
           alt=""
         />
-        {showSteam ? (
+        {showSteam ?(
           <>
             <img
               className="ultra-boss-monitor__steam ultra-boss-monitor__steam--left"
@@ -167,13 +167,13 @@ function UltraBossMonitor({
             />
           </>
         ) : null}
-        {showCrack ? (
+        {showCrack ?(
           <img className="ultra-boss-monitor__crack" src="/assets/boss/ultra-fx-crack.png" alt="" />
         ) : null}
-        {showAlert ? (
+        {showAlert ?(
           <img className="ultra-boss-monitor__alert" src="/assets/boss/ultra-fx-alert.png" alt="" />
         ) : null}
-        {showBurst ? (
+        {showBurst ?(
           <img className="ultra-boss-monitor__burst" src="/assets/boss/ultra-fx-burst.png" alt="" />
         ) : null}
       </div>

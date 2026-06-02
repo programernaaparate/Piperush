@@ -25,7 +25,7 @@ function getLevelTags(level) {
   }
 
   if (level.specials?.some((item) => item.modifier === "locked")) {
-    tags.push("Lock");
+    tags.push("Zaključano");
   }
 
   if (level.specials?.some((item) => item.modifier === "auto")) {
@@ -33,7 +33,7 @@ function getLevelTags(level) {
   }
 
   if (level.specials?.some((item) => item.modifier === "damaged")) {
-    tags.push("Šteta");
+    tags.push("Kvar");
   }
 
   return tags;

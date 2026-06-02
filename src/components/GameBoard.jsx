@@ -24,6 +24,7 @@ function GameBoard({
   isUltra = false,
   boardFxMode = "",
   tileFxById = {},
+  pipeTheme = "default",
   fitWidth = null,
   resetPhase = "",
 }) {
@@ -52,14 +53,14 @@ function GameBoard({
     levelDisplay,
     `${gridSize} x ${gridSize}`,
     difficultyLabel,
-    ...(isUltra ? ["Ultra hard"] : []),
+    ...(isUltra ? ["Ultra teško"] : []),
   ];
 
   return (
     <div
       className={`board-frame ${compactBoard ? "is-compact" : ""} ${isSolved ? "is-solved" : ""} ${isBoss ? "is-boss" : ""} ${
         isUltra ? "is-ultra" : ""
-      } ${boardFxMode ? `is-fx-${boardFxMode}` : ""} ${resetPhase}`}
+      } ${boardFxMode ? `is-fx-${boardFxMode}` : ""} ${pipeTheme !== "default" ? `pipe-theme-${pipeTheme}` : ""} ${resetPhase}`}
       style={{
         "--board-columns": gridSize,
         "--board-max-width": boardWidths[gridSize] ?? "700px",
@@ -91,7 +92,7 @@ function GameBoard({
       <div
         className={`game-board ${isSolved ? "is-solved" : ""} ${isBoss ? "is-boss" : ""} ${
           isUltra ? "is-ultra" : ""
-        } ${boardFxMode ? `is-fx-${boardFxMode}` : ""}`}
+        } ${boardFxMode ? `is-fx-${boardFxMode}` : ""} ${pipeTheme !== "default" ? `pipe-theme-${pipeTheme}` : ""}`}
       >
         {boardFxMode ? (
           <span
@@ -112,6 +113,7 @@ function GameBoard({
             flowLength={activeFlowTiles.length}
             moveCount={moveCount}
             fxType={tileFxById[tile.id] ?? ""}
+            pipeTheme={pipeTheme}
             onRotate={onRotate}
           />
         ))}

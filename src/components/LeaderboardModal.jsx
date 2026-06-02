@@ -1,4 +1,5 @@
 import { audioManager } from "../utils/audio.js";
+import { showcaseArt } from "../data/showcaseArt.js";
 
 const uiAssets = {
   back: "/assets/ui/icon-play.png",
@@ -51,7 +52,7 @@ function LeaderboardModal({
             type="button"
             className="level-select-header__back"
             onClick={handleClose}
-            aria-label="Nazad na pocetni meni"
+            aria-label="Nazad na početni meni"
           >
             <span className="level-select-header__back-shell" aria-hidden="true">
               <img src={uiAssets.back} alt="" />
@@ -65,11 +66,14 @@ function LeaderboardModal({
         <div className="modal-card__eyebrow">Najbolji rezultati</div>
         <div className="modal-card__title">Rang lista mreže</div>
         <p className="modal-card__copy">
-          Najbolje partije se automatski upisuju iz zavrsenih nivoa.
+          Najbolji rezultati se automatski čuvaju po završenom nivou.
         </p>
 
         {dailyEntry ? (
           <div className="leaderboard-spotlight">
+            <div className="leaderboard-spotlight__art" aria-hidden="true">
+              <img src={showcaseArt.leaderboardDrone} alt="" />
+            </div>
             <span className="leaderboard-spotlight__label">Dnevni rekord</span>
             <strong className="leaderboard-spotlight__value">
               {dailyEntry.playerName} / {dailyEntry.score}
@@ -85,13 +89,13 @@ function LeaderboardModal({
           <div className="leaderboard-section__title">Top 5 / {difficultyLabel}</div>
           {renderEntries(
             difficultyEntries,
-            `Jos nema zavrsenih partija za tezinu ${difficultyLabel.toLowerCase()}.`,
+            `Još nema završenih partija za težinu ${difficultyLabel.toLowerCase()}.`,
           )}
         </div>
 
         <div className="leaderboard-section">
           <div className="leaderboard-section__title">Top 10 / Ukupno</div>
-          {renderEntries(globalEntries, "Jos nema zavrsenih partija u kampanji.")}
+          {renderEntries(globalEntries, "Još nema završenih partija u kampanji.")}
         </div>
 
         <div className="modal-actions">

@@ -4,6 +4,7 @@ import {
   difficultyConfig,
   levelsByDifficulty,
 } from "../data/levels.js";
+import { showcaseArt } from "../data/showcaseArt.js";
 import { getBossVisual } from "../data/bossVisuals.js";
 import { audioManager } from "../utils/audio.js";
 import {
@@ -29,7 +30,7 @@ const difficultyStars = {
   hard: 3,
 };
 
-const menuHeroArtwork = "/assets/illustrations/menu-hero-pipe-puzzle.png";
+const menuHeroArtwork = showcaseArt.menuHeroScene;
 
 function formatCountLabel(count, singular, plural) {
   return `${count} ${count === 1 ? singular : plural}`;
@@ -227,6 +228,7 @@ function HeroPreview() {
 function MainMenu({
   progress,
   audioMuted,
+  audioStatus,
   selectedDifficulty,
   onSelectDifficulty,
   onToggleAudio,
@@ -277,21 +279,22 @@ function MainMenu({
     ultraLevel?.id && suggestedLevel?.id && ultraLevel.id === suggestedLevel.id,
   );
   const campaignAlertLabel = isUltraEncounterImminent
-    ? "Ultra finale je sljedeća misija."
+    ? "Ultra završnica je sljedeća."
     : isBossEncounterImminent
-      ? "Boss kontakt je sljedeća misija."
+      ? "Boss susret je sljedeći."
       : bossLevel?.bossProfile
-        ? "Boss sektor čeka dublje u ovoj ruti."
+        ? "Boss sektor čeka dublje u ruti."
         : "";
   const threatMeterLabel = isUltraEncounterImminent
-    ? "Ultra kontakt"
+    ? "Ultra susret"
     : isBossEncounterImminent
-      ? "Boss kontakt"
+      ? "Boss susret"
         : bossLevel?.bossProfile
           ? `Boss za ${formatCountLabel(bossDistance, "misiju", "misija")}`
           : "Ruta čista";
 
-  const playerDisplayName = progress.playerName.trim() || "IGRAČ";
+  const playerDisplayName = progress.playerName.trim();
+  const playerCardTitle = playerDisplayName || "Unesi ime";
   const heroChips = [
     {
       key: "levels",
@@ -303,13 +306,6 @@ function MainMenu({
       icon: "shield",
       label: formatCountLabel(bossLevelCount, "boss nivo", "boss nivoa"),
     },
-    ultraLevel
-      ? {
-          key: "ultra",
-          icon: "diamond",
-          label: "Ultra hard finale",
-        }
-      : null,
     {
       key: "time",
       icon: "clock",
@@ -318,9 +314,9 @@ function MainMenu({
     {
       key: "player",
       icon: "user",
-      label: `Igrač ${playerDisplayName}`,
+      label: playerDisplayName ? `Igrač ${playerDisplayName}` : "Ime nije postavljeno",
     },
-  ].filter(Boolean);
+  ];
   const summaryCards = [
     {
       key: "completed",
@@ -344,6 +340,12 @@ function MainMenu({
       detail: "Sakupljene zvjezdice",
     },
   ];
+  const audioStatusLabel = audioMuted ? "UGAŠEN" : audioStatus === "on" ? "AKTIVAN" : "SPREMAN";
+  const audioToggleTitle = audioMuted
+    ? "Uključi zvuk"
+    : audioStatus === "on"
+      ? "Isključi zvuk"
+      : "Zvuk je uključen. Prvi dodir pokreće muziku.";
 
   function primeAudio() {
     audioManager.startBackground();
@@ -363,9 +365,23 @@ function MainMenu({
     onResetProgress();
   }
 
-  function handleSelectDifficultyChange(difficultyKey) {
+  function handleDifficultyPointerDown(event) {
+    event.preventDefault();
+  }
+
+  function handleSelectDifficultyChange(difficultyKey, event) {
+    const scrollY = typeof window === "undefined" ? 0 : window.scrollY;
+
     primeAudio();
     onSelectDifficulty(difficultyKey);
+
+    event.currentTarget.blur();
+
+    if (typeof window !== "undefined") {
+      window.requestAnimationFrame(() => {
+        window.scrollTo(window.scrollX, scrollY);
+      });
+    }
   }
 
   function handleStartCampaign() {
@@ -435,12 +451,14 @@ function MainMenu({
               type="button"
               className="secondary-button secondary-button--compact menu-audio-toggle"
               onClick={onToggleAudio}
+              data-audio-control="toggle"
               aria-label={audioMuted ? "Uključi zvuk" : "Isključi zvuk"}
+              title={audioToggleTitle}
             >
               <span className="menu-audio-toggle__icon">
                 <MenuGlyph name={audioMuted ? "volume-off" : "volume-on"} />
               </span>
-              <span>Zvuk: {audioMuted ? "OFF" : "ON"}</span>
+              <span>Zvuk: {audioStatusLabel}</span>
             </button>
           </div>
 
@@ -461,7 +479,7 @@ function MainMenu({
                 <span className="menu-logo-shell__node menu-logo-shell__node--right" aria-hidden="true" />
               </div>
               <p className="menu-tagline">
-                Rotiraj cijevi, poveži tok i riješi mrežu prije isteka vremena.
+                Rotiraj cijevi i zatvori tok prije isteka vremena.
               </p>
               <div className="menu-hero-chips">
                 {heroChips.map((chip) => (
@@ -516,15 +534,15 @@ function MainMenu({
             <div className="menu-player-row">
               <label className="menu-player-card" htmlFor="pilot-tag">
                 <div className="menu-player-card__visual" aria-hidden="true">
-                  <span className="menu-player-card__avatar">
-                    <MenuGlyph name="drop" />
+                  <span className="menu-player-card__avatar menu-player-card__avatar--art">
+                    <img src={showcaseArt.playerCardBot} alt="" />
                   </span>
                 </div>
                 <div className="menu-player-card__content">
-                  <span className="menu-player-card__label">Igrač</span>
-                  <strong className="menu-player-card__title">{playerDisplayName}</strong>
+                  <span className="menu-player-card__label">Ime igrača</span>
+                  <strong className="menu-player-card__title">{playerCardTitle}</strong>
                   <span className="menu-player-card__hint">
-                    Pozivni znak za kampanju, dnevni izazov i rang listu.
+                    Ime se prikazuje u igri, dnevnom izazovu i na rang listi.
                   </span>
                   <input
                     id="pilot-tag"
@@ -534,7 +552,7 @@ function MainMenu({
                     maxLength={12}
                     spellCheck="false"
                     onChange={(event) => onUpdatePlayerName(event.target.value)}
-                    placeholder="IGRAČ"
+                    placeholder="Upiši ime"
                   />
                 </div>
               </label>
@@ -545,8 +563,8 @@ function MainMenu({
                 onClick={handleStartDaily}
               >
                 <div className="menu-daily-card__visual" aria-hidden="true">
-                  <span className="menu-daily-card__gem">
-                    <MenuGlyph name="diamond" />
+                  <span className="menu-daily-card__gem menu-daily-card__gem--art">
+                    <img src={showcaseArt.dailyBot} alt="" />
                   </span>
                 </div>
                 <div className="menu-daily-card__content">
@@ -583,7 +601,7 @@ function MainMenu({
                 <div className="menu-launch-deck__heading">
                   <div className="menu-details__eyebrow">Početak igre</div>
                   <div className="menu-launch-deck__title">
-                    Odaberi težinu, pa pokreni kampanju
+                    Odaberi težinu i pokreni kampanju
                   </div>
                 </div>
                 <div className="menu-launch-note">
@@ -610,8 +628,8 @@ function MainMenu({
                         className={`difficulty-button ${
                           selectedDifficulty === option.key ? "is-selected" : ""
                         }`}
-                        onFocus={() => onSelectDifficulty(option.key)}
-                        onClick={() => handleSelectDifficultyChange(option.key)}
+                        onMouseDown={handleDifficultyPointerDown}
+                        onClick={(event) => handleSelectDifficultyChange(option.key, event)}
                         aria-label={`Izaberi težinu ${option.label}`}
                         aria-pressed={selectedDifficulty === option.key}
                       >
@@ -657,13 +675,13 @@ function MainMenu({
                   </span>
                   <span className="menu-start-button__copy">
                     <span className="menu-start-button__eyebrow">Pokreni kampanju</span>
-                    <strong className="menu-start-button__title">PLAY</strong>
+                    <strong className="menu-start-button__title">KRENI</strong>
                   </span>
                   <span className="menu-start-button__shine" aria-hidden="true" />
                   <span className="sr-only">Pokreni kampanju</span>
                 </button>
                 <p className="menu-start-rack__copy">
-                  Pokreće prvi dostupan nivo za težinu {difficulty.label}.
+                  Pokreće prvi otključani nivo za težinu {difficulty.label}.
                 </p>
               </div>
             </div>
@@ -745,7 +763,7 @@ function MainMenu({
                       <p className="menu-campaign-card__copy">{suggestedLevel.briefing}</p>
                       <div className="menu-stats">
                         <div className="menu-stat-pill">
-                          {suggestedLevel.isUltra ? "Ultra hard" : `Težina ${difficulty.label}`}
+                          {suggestedLevel.isUltra ? "Ultra teško" : `Težina ${difficulty.label}`}
                         </div>
                         <div className="menu-stat-pill">Vrijeme {suggestedLevel.timeLimit}s</div>
                         <div className="menu-stat-pill">
@@ -796,6 +814,11 @@ function MainMenu({
                               backgroundSize: bossVisual?.previewSize,
                             }}
                           />
+                          {bossVisual?.portraitImage ? (
+                            <div className="menu-boss-card__avatar">
+                              <img src={bossVisual.portraitImage} alt="" />
+                            </div>
+                          ) : null}
                           <div className="menu-boss-card__visual-frame">
                             <span>Upozorenje bossa</span>
                             <strong>
@@ -827,7 +850,7 @@ function MainMenu({
                           </p>
                           {ultraLevel ? (
                             <p className="menu-boss-card__copy menu-boss-card__copy--secondary">
-                              Završni challenge: {ultraLevel.name} / {ultraLevel.timeLimit}s /{" "}
+                              Završni izazov: {ultraLevel.name} / {ultraLevel.timeLimit}s /{" "}
                               {ultraLevel.hints} savjeta
                             </p>
                           ) : null}
@@ -894,7 +917,7 @@ function MainMenu({
             dailyProgress.completed
               ? {
                   id: `daily-${dailyLevel.id}`,
-                  playerName: progress.playerName,
+                  playerName: dailyProgress.bestPlayerName?.trim() || playerDisplayName || "Igrač",
                   difficultyLabel: "Dnevni",
                   levelName: dailyLevel.name,
                   levelIndex: 0,

@@ -1,6 +1,7 @@
 ﻿import { useEffect, useRef, useState } from "react";
 import { getBossVisual } from "../data/bossVisuals.js";
 import { difficultyConfig, levelsByDifficulty } from "../data/levels.js";
+import { showcaseArt } from "../data/showcaseArt.js";
 import { audioManager } from "../utils/audio.js";
 import { getLevelProgress } from "../utils/progress.js";
 import {
@@ -8,6 +9,7 @@ import {
   analyzeFlow,
   createBoardFromLevel,
   getDamagePenalty,
+  getContiguousPathLength,
   getHintRecommendation,
   getLockMovesRemaining,
   isRotatable,
@@ -92,7 +94,7 @@ function buildSpecialRuleLabel(level) {
   }
 
   if (level.specials?.some((item) => item.modifier === "locked")) {
-    tags.push("Lock");
+    tags.push("Zaključano");
   }
 
   if (level.specials?.some((item) => item.modifier === "auto")) {
@@ -103,7 +105,7 @@ function buildSpecialRuleLabel(level) {
     tags.push("Šteta");
   }
 
-  return tags.length > 0 ? tags.join(" / ") : "Standard";
+  return tags.length > 0 ? tags.join(" / ") : "Standardni";
 }
 
 function getGameBackgroundClass(level, difficulty) {
@@ -305,7 +307,7 @@ function applyBossEvent({ board, level, moveCount, timeLeft, eventCount = 1 }) {
         rotatedCount > 0
           ? `${eventConfig.label}: rotor talas je pomjerio ${rotatedCount} kritična polja.`
           : `${eventConfig.label}: mreža je odoljela rotoru ovog talasa.`,
-      badgeLabel: rotatedCount > 0 ? "AUTO" : "SAFE",
+      badgeLabel: rotatedCount > 0 ? "ROT" : "MIR",
       hintedTileId: rotatedCount > 0 ? autoRotateResult.rotatedTileIds[0] : null,
       type: eventConfig.type,
     };
@@ -339,7 +341,7 @@ function applyBossEvent({ board, level, moveCount, timeLeft, eventCount = 1 }) {
         board,
         timeLeft,
         message: `${eventConfig.label}: nije pronađena slobodna cijev za zaključavanje.`,
-        badgeLabel: "SAFE",
+        badgeLabel: "MIR",
         hintedTileId: null,
         type: eventConfig.type,
       };
@@ -375,6 +377,7 @@ function GameScreen({
   startingLevelIndex,
   progress,
   audioMuted,
+  audioStatus,
   onExitToMenu,
   onTrackLevel,
   onToggleAudio,
@@ -419,6 +422,16 @@ function GameScreen({
   const isUltraLevel = Boolean(currentLevel.isUltra);
   const bossProfile = currentLevel.bossProfile ?? null;
   const bossVisual = bossProfile ? getBossVisual(bossProfile, { isUltra: isUltraLevel }) : null;
+  const pipeTheme =
+    isBossLevel &&
+    (
+      bossProfile?.id === "aegis" ||
+      bossProfile?.id === "gyro" ||
+      bossProfile?.id === "warden" ||
+      bossProfile?.id === "singularity"
+    )
+      ? bossProfile.id
+      : "default";
   const isFinalLevel = levelIndex === levels.length - 1;
   const levelProgress = getLevelProgress(progress, difficulty, currentLevel.id);
   const {
@@ -447,13 +460,15 @@ function GameScreen({
   const gameplayPaused = isPaused || showTutorial || showBossIntro || roundResetPhase !== "";
   const isCriticalTime =
     timeRatio <= 0.25 && !showLevelComplete && !showGameOver && !showTutorial;
+  const contiguousPathCount = getContiguousPathLength(board, currentLevel.path);
   const pathProgress = Math.min(
     100,
-    Math.round((flowTrail.length / Math.max(currentLevel.path.length, 1)) * 100),
+    Math.round((contiguousPathCount / Math.max(currentLevel.path.length, 1)) * 100),
   );
   const hintsUsed = Math.max((currentLevel.hints ?? defaultHints) - hintsLeft, 0);
   const isLevelCleared = scoreAward > 0 || showLevelComplete;
   const hasResolvedLevel = showGameOver || showLevelComplete || scoreAward > 0;
+  const hasLevelHints = (currentLevel.hints ?? defaultHints) > 0;
   const liveScorePreview = hasResolvedLevel
     ? 0
     : calculateLiveScorePreview({
@@ -464,16 +479,31 @@ function GameScreen({
   const displayLevelName = currentLevel.name;
   const displayBriefing = currentLevel.briefing;
   const displayDifficultyLabel = difficultyDetails.label;
-  const displayPlayerName = progress.playerName;
+  const displayPlayerName = progress.playerName?.trim() || "Igrač";
   const displayBossCodename = bossProfile?.codename ?? "";
   const displayBossName = bossVisual?.displayName ?? bossProfile?.title ?? "Boss sistem";
-  const bossPortraitStyle = bossVisual?.previewImage
+  const bossPortraitImage = bossVisual?.portraitImage || bossVisual?.previewImage;
+  const bossPortraitStyle = bossPortraitImage
     ? {
-        backgroundImage: `url("${bossVisual.previewImage}")`,
-        backgroundPosition: bossVisual.previewPosition ?? "center",
-        backgroundSize: bossVisual.previewSize ?? "cover",
+        backgroundImage: `url("${bossPortraitImage}")`,
+        backgroundPosition:
+          bossVisual?.portraitImage
+            ? bossVisual.portraitPosition ?? "center"
+            : bossVisual?.previewPosition ?? "center",
+        backgroundSize:
+          bossVisual?.portraitImage
+            ? bossVisual.portraitSize ?? "contain"
+            : bossVisual?.previewSize ?? "cover",
       }
     : null;
+  const statusArtImage = bossVisual?.portraitImage
+    || (currentLevel.isDaily
+      ? showcaseArt.dailyBot
+      : pathProgress >= 65
+        ? showcaseArt.botWrenchCompact
+        : pathProgress >= 30
+          ? showcaseArt.botWrenchHero
+          : showcaseArt.droneHelperBright);
   const displayedScore = score + liveScorePreview;
   const scoreDetail =
     scoreAward > 0
@@ -503,25 +533,31 @@ function GameScreen({
   const bossBannerDefaultMessage = isBossLevel
     ? `${bossEventLabel}: ${bossThreatSummary} na ${currentLevel.bossEvent?.interval}s. ${bossPhaseState.description}`
     : "";
-  const objectiveCopy = `Poveži START sa END prije isteka vremena. Savjet otkriva sljedeću kritičnu cijev. Režim: ${specialRuleLabel}.`;
+  const objectiveCopy = hasLevelHints
+    ? "Spoji ULAZ sa IZLAZOM prije isteka vremena. Savjet otkriva sljedeću kritičnu cijev."
+    : "Spoji ULAZ sa IZLAZOM prije isteka vremena. Ovaj nivo nema savjete, pa čuvaj svaki potez.";
   const fallbackHintMessage = isBossLevel
-    ? `${bossEventLabel}: čuvaj glavni tok i ostavi rezervu za lock.`
-    : "Savjet otkriva prvu pogrešnu cijev na glavnoj ruti.";
+    ? `${bossEventLabel}: sačuvaj rezervu za zaključavanje.`
+    : hasLevelHints
+      ? "Savjet otkriva prvi kritični prekid glavne rute."
+      : "Glavni tok još čeka prvi čist spoj.";
   const ultraWarningCopy =
-    "Nema savjeta ni rezervnih poteza. Lock, rotor i šteta traže skoro savršen redoslijed.";
-  const defaultAiInsight = isBossLevel
-    ? `${displayBossCodename || "Boss AI"} prati glavni tok i čeka trenutak da zaključa najvažniju cijev.`
-    : isUltraLevel
-      ? "Ultra mreža traži zatvaranje glavnog prstena bez praznih rotacija. Svaki potez mora vratiti stvarnu vezu."
-      : pathProgress >= 55
-        ? "AI analiza vidi stabilan front i prati prvi segment koji još ne vraća vezu ka rješenju."
-        : "AI analiza kreće od START-a i BFS logikom traži prvo polje koje prekida glavni tok.";
-  const displayedAiInsight = aiInsight || defaultAiInsight;
+    "Bez savjeta i rezervnih poteza. Zaključavanje, rotor i šteta traže skoro savršen redoslijed.";
+  const displayedAiInsight = aiInsight?.trim() || "";
   const displayedAiLabel = aiSolverLabel || (isBossLevel ? "Analiza bossa" : "AI analiza");
+  const audioStatusLabel = audioMuted ? "UGAŠEN" : audioStatus === "on" ? "AKTIVAN" : "SPREMAN";
+  const audioToggleTitle = audioMuted
+    ? "Uključi zvuk"
+    : audioStatus === "on"
+      ? "Isključi zvuk"
+      : "Zvuk je uključen. Prvi dodir pokreće muziku.";
   const stabilizerRecommendation = getHintRecommendation(board, currentLevel, moves, {
     skipLocked: true,
     allowResolvedFallback: false,
   });
+  const blockedStabilizerRecommendation = !stabilizerRecommendation
+    ? getHintRecommendation(board, currentLevel, moves)
+    : null;
   const showPauseModal =
     isPaused && !isLevelCleared && !showGameOver && !showTutorial && !showBossIntro;
   const flowStateLabel = isLevelCleared
@@ -547,6 +583,17 @@ function GameScreen({
                   : moves > 0
                     ? "Traži sljedeći zavoj"
                     : "Poravnaj ulaz";
+  const statusCardFlowLabel = showLevelComplete
+    ? "Mreža stabilna"
+    : showGameOver
+      ? "Tok prekinut"
+      : contiguousPathCount > 1
+        ? flowStateLabel
+        : "Čeka povezivanje";
+  const statusCardFlowCount =
+    contiguousPathCount > 1 && !showLevelComplete && !showGameOver
+      ? String(contiguousPathCount).padStart(2, "0")
+      : "";
   const boardLegendItems = [
     currentLevel.specials?.some((item) => item.modifier === "locked")
       ? { key: "locked", badge: "L", label: "Zaključano polje" }
@@ -994,7 +1041,7 @@ function GameScreen({
       damagePenalty > 0
         ? `-${damagePenalty}s`
         : autoRotateResult.rotatedTileIds.length > 0
-          ? "AUTO"
+          ? "ROT"
           : "";
     const tileEffects = {
       [tileId]: damagePenalty > 0 ? "damage" : "rotate",
@@ -1139,7 +1186,7 @@ function GameScreen({
         ...current.powerUps,
         boost: Math.max((current.powerUps?.boost ?? 0) - 1, 0),
       },
-      hintMessage: `Overclock aktivan: +${addedTime}s dodatnog vremena.`,
+      hintMessage: `Ubrzanje aktivno: +${addedTime}s dodatnog vremena.`,
       hintBadgeLabel: "+T",
       hintedTileId: null,
       aiInsight: "",
@@ -1162,7 +1209,7 @@ function GameScreen({
     const recommendation = stabilizerRecommendation;
 
     if (!recommendation) {
-      const blockedRecommendation = getHintRecommendation(board, currentLevel, moves);
+      const blockedRecommendation = blockedStabilizerRecommendation;
 
       if (blockedRecommendation?.lockMovesRemaining > 0) {
         triggerFx({
@@ -1236,7 +1283,7 @@ function GameScreen({
         },
         hintedTileId: recommendation.id,
         hintMessage: `Stabilizator je zaključao cijev na polju ${positionLabel}.`,
-        hintBadgeLabel: "FIX",
+        hintBadgeLabel: "POR",
         aiInsight: "",
         aiSolverLabel: "",
         flowTrail: nextFlowTrail,
@@ -1276,7 +1323,7 @@ function GameScreen({
       },
       hintedTileId: recommendation.id,
       hintMessage: `Stabilizator je poravnao ključnu cijev na polju ${positionLabel}.`,
-      hintBadgeLabel: "FIX",
+      hintBadgeLabel: "POR",
       aiInsight: "",
       aiSolverLabel: "",
       flowTrail: nextFlowTrail,
@@ -1424,9 +1471,11 @@ function GameScreen({
                 type="button"
                 className="secondary-button secondary-button--compact"
                 onClick={onToggleAudio}
+                data-audio-control="toggle"
                 aria-label={audioMuted ? "Uključi zvuk" : "Isključi zvuk"}
+                title={audioToggleTitle}
               >
-                Zvuk: {audioMuted ? "OFF" : "ON"}
+                Zvuk: {audioStatusLabel}
               </button>
             </div>
 
@@ -1435,7 +1484,7 @@ function GameScreen({
               <div className="mode-chip">Igrač: {displayPlayerName}</div>
               {currentLevel.isDaily ? <div className="mode-chip is-daily">Dnevni izazov</div> : null}
               {isBossLevel ? <div className="mode-chip is-boss">Boss nivo</div> : null}
-              {isUltraLevel ? <div className="mode-chip is-ultra">Ultra hard</div> : null}
+              {isUltraLevel ? <div className="mode-chip is-ultra">Ultra teško</div> : null}
               {isBossLevel && bossProfile?.codename ? (
                 <div className="mode-chip is-boss-profile">{displayBossCodename}</div>
               ) : null}
@@ -1531,7 +1580,10 @@ function GameScreen({
             }
             canUseStabilizer={
               (powerUps.stabilizer ?? 0) > 0 &&
-              Boolean(stabilizerRecommendation) &&
+              Boolean(
+                stabilizerRecommendation ||
+                blockedStabilizerRecommendation?.lockMovesRemaining > 0,
+              ) &&
               !showLevelComplete &&
               !showGameOver &&
               !showTutorial &&
@@ -1563,6 +1615,7 @@ function GameScreen({
             isUltra={isUltraLevel}
             boardFxMode={fxState.boardMode}
             tileFxById={fxState.tileFxById}
+            pipeTheme={pipeTheme}
             fitWidth={boardFitWidth}
             resetPhase={roundResetPhase}
           />
@@ -1581,13 +1634,15 @@ function GameScreen({
                 >
                   {hintMessage || fallbackHintMessage}
                 </div>
-                <div className="status-card__analysis">
+                {displayedAiInsight ? (
+                  <div className="status-card__analysis">
                     <span className="status-card__analysis-label">{displayedAiLabel}</span>
                     <p>{displayedAiInsight}</p>
-                </div>
+                  </div>
+                ) : null}
                 {isUltraLevel ? (
                   <div className="status-card__analysis status-card__analysis--danger">
-                    <span className="status-card__analysis-label">Ultra hard</span>
+                    <span className="status-card__analysis-label">Ultra režim</span>
                     <p>{ultraWarningCopy}</p>
                   </div>
                 ) : null}
@@ -1618,21 +1673,16 @@ function GameScreen({
                 ) : null}
               </div>
 
-              {!isUltraLevel ? (
-                <div className="status-card__visual" aria-hidden="true">
-                  <img src="/assets/legacy/review-pipe.svg" alt="" />
-                </div>
-              ) : null}
+              <div className="status-card__visual" aria-hidden="true">
+                <img src={statusArtImage} alt="" />
+              </div>
 
               <div className="status-card__cluster">
-                <div className="status-card__pill">
-                  {showLevelComplete
-                    ? "Mreža stabilna"
-                    : showGameOver
-                      ? "Tok prekinut"
-                      : flowTrail.length > 1
-                        ? `${flowStateLabel} ${String(flowTrail.length).padStart(2, "0")}`
-                        : "Čeka povezivanje"}
+                <div className={`status-card__pill ${statusCardFlowCount ? "has-counter" : ""}`}>
+                  <span className="status-card__pill-text">{statusCardFlowLabel}</span>
+                  {statusCardFlowCount ? (
+                    <strong className="status-card__pill-counter">{statusCardFlowCount}</strong>
+                  ) : null}
                 </div>
                 <div className="status-card__subpill">
                   Rekord nivoa {levelProgress.bestScore > 0 ? levelProgress.bestScore : "000"}

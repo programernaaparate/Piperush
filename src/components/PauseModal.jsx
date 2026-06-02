@@ -5,7 +5,7 @@ function PauseModal({ onResume, onRestart, onMenu }) {
         <div className="modal-card__eyebrow">Pauza</div>
         <div className="modal-card__title">Igra je zaustavljena</div>
         <p className="modal-card__copy">
-          Tajmer miruje dok ne izabereš nastavak, restart ili povratak na meni.
+          Tajmer miruje dok ne izabereš nastavak, ponavljanje nivoa ili povratak na meni.
         </p>
 
         <div className="modal-actions modal-actions--stack">
@@ -13,7 +13,7 @@ function PauseModal({ onResume, onRestart, onMenu }) {
             Nastavi
           </button>
           <button type="button" className="secondary-button" onClick={onRestart}>
-            Restart
+            Ponovi nivo
           </button>
           <button type="button" className="secondary-button is-ghost" onClick={onMenu}>
             Meni

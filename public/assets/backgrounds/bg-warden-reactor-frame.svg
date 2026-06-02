@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1672 941" fill="none">
+  <defs>
+    <linearGradient id="bg-base" x1="836" y1="0" x2="836" y2="941" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#040d18"/>
+      <stop offset="0.48" stop-color="#081425"/>
+      <stop offset="1" stop-color="#030913"/>
+    </linearGradient>
+    <radialGradient id="bg-core-glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(836 186) rotate(90) scale(160 310)">
+      <stop stop-color="#8cecff" stop-opacity="0.9"/>
+      <stop offset="0.34" stop-color="#38b9ff" stop-opacity="0.46"/>
+      <stop offset="0.74" stop-color="#0f4dbe" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#081425" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="side-reactor-glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 0) scale(120)">
+      <stop stop-color="#b5f3ff"/>
+      <stop offset="0.34" stop-color="#55caff"/>
+      <stop offset="0.7" stop-color="#246fff"/>
+      <stop offset="1" stop-color="#071221" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="pipe-shell" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#1d3858"/>
+      <stop offset="0.4" stop-color="#0d2140"/>
+      <stop offset="0.72" stop-color="#071427"/>
+      <stop offset="1" stop-color="#214668"/>
+    </linearGradient>
+    <linearGradient id="pipe-metal" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#355272"/>
+      <stop offset="0.44" stop-color="#173151"/>
+      <stop offset="0.74" stop-color="#0a182e"/>
+      <stop offset="1" stop-color="#31506f"/>
+    </linearGradient>
+    <linearGradient id="copper" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ffd59d"/>
+      <stop offset="0.34" stop-color="#d88d50"/>
+      <stop offset="0.72" stop-color="#844120"/>
+      <stop offset="1" stop-color="#4f1f10"/>
+    </linearGradient>
+    <linearGradient id="glass-fill" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#d8fdff" stop-opacity="0.98"/>
+      <stop offset="0.16" stop-color="#81e6ff" stop-opacity="0.94"/>
+      <stop offset="0.52" stop-color="#2e99ff" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#163fcb" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="glass-overlay" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="0.24" stop-color="#dff8ff" stop-opacity="0.08"/>
+      <stop offset="0.7" stop-color="#bfefff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.18"/>
+    </linearGradient>
+    <linearGradient id="electric" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#6fe7ff"/>
+      <stop offset="0.42" stop-color="#ffffff"/>
+      <stop offset="0.72" stop-color="#3cb9ff"/>
+      <stop offset="1" stop-color="#1a5dff"/>
+    </linearGradient>
+    <pattern id="grid" width="74" height="74" patternUnits="userSpaceOnUse">
+      <path d="M74 0H0V74" stroke="#8fdcff" stroke-opacity="0.08" stroke-width="1"/>
+    </pattern>
+    <filter id="blue-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="mist" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="24"/>
+    </filter>
+    <style>
+      .shell {
+        fill: none;
+        stroke: url(#pipe-shell);
+        stroke-width: 58;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .flow {
+        fill: none;
+        stroke: #4fceff;
+        stroke-width: 40;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0.96;
+        filter: url(#blue-glow);
+      }
+      .cap {
+        fill: url(#pipe-metal);
+        stroke: #406387;
+        stroke-width: 4;
+      }
+      .copper {
+        fill: url(#copper);
+      }
+      .light {
+        fill: #6ddfff;
+        filter: url(#blue-glow);
+      }
+    </style>
+  </defs>
+
+  <rect width="1672" height="941" fill="url(#bg-base)"/>
+  <rect width="1672" height="941" fill="url(#bg-core-glow)"/>
+  <rect width="1672" height="941" fill="url(#grid)" opacity="0.16"/>
+
+  <g opacity="0.96">
+    <path d="M184 103V230L294 230V478" class="shell"/>
+    <path d="M1488 103V230L1378 230V478" class="shell"/>
+    <path d="M294 478V602L186 602V724" class="shell"/>
+    <path d="M1378 478V602L1486 602V724" class="shell"/>
+    <path d="M606 98H744" class="shell"/>
+    <path d="M928 98H1066" class="shell"/>
+
+    <path d="M184 103V230L294 230V478" class="flow"/>
+    <path d="M1488 103V230L1378 230V478" class="flow"/>
+    <path d="M294 478V602L186 602V724" class="flow"/>
+    <path d="M1378 478V602L1486 602V724" class="flow"/>
+    <path d="M606 98H744" class="flow"/>
+    <path d="M928 98H1066" class="flow"/>
+  </g>
+
+  <g>
+    <circle cx="180" cy="464" r="96" fill="#0a1527" stroke="#355c90" stroke-width="10"/>
+    <circle cx="180" cy="464" r="68" fill="#0f2440" stroke="#5e88be" stroke-width="6"/>
+    <circle cx="180" cy="464" r="48" fill="url(#side-reactor-glow)" filter="url(#blue-glow)"/>
+    <circle cx="180" cy="464" r="20" fill="#ffffff" fill-opacity="0.92"/>
+    <path d="M180 408V520M124 464H236M140 424L220 504M140 504L220 424" stroke="#a8eeff" stroke-opacity="0.34" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <g>
+    <circle cx="1492" cy="464" r="96" fill="#0a1527" stroke="#355c90" stroke-width="10"/>
+    <circle cx="1492" cy="464" r="68" fill="#0f2440" stroke="#5e88be" stroke-width="6"/>
+    <circle cx="1492" cy="464" r="48" fill="url(#side-reactor-glow)" filter="url(#blue-glow)"/>
+    <circle cx="1492" cy="464" r="20" fill="#ffffff" fill-opacity="0.92"/>
+    <path d="M1492 408V520M1436 464H1548M1452 424L1532 504M1452 504L1532 424" stroke="#a8eeff" stroke-opacity="0.34" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <g>
+    <ellipse cx="836" cy="124" rx="198" ry="70" fill="#091321" stroke="#27456c" stroke-width="8"/>
+    <ellipse cx="836" cy="124" rx="126" ry="42" fill="#0d2443" stroke="#4c76af" stroke-width="6"/>
+    <ellipse cx="836" cy="140" rx="92" ry="32" fill="url(#side-reactor-glow)" filter="url(#blue-glow)"/>
+    <ellipse cx="836" cy="150" rx="64" ry="18" fill="#d5fcff" fill-opacity="0.82"/>
+    <path d="M836 152V272" stroke="#6fe7ff" stroke-width="24" stroke-linecap="round" filter="url(#blue-glow)"/>
+  </g>
+
+  <g>
+    <rect x="289" y="174" width="1094" height="612" rx="56" fill="#081321" stroke="#25476f" stroke-width="6"/>
+    <rect x="318" y="200" width="1036" height="560" rx="46" fill="url(#grid)" opacity="0.12"/>
+    <path d="M368 252H1294" stroke="#88e8ff" stroke-opacity="0.08" stroke-width="3"/>
+    <path d="M836 226V760" stroke="#88e8ff" stroke-opacity="0.06" stroke-width="2"/>
+    <path d="M560 336H1112M580 604H1092" stroke="#80dfff" stroke-opacity="0.06" stroke-width="2"/>
+  </g>
+
+  <g>
+    <rect x="236" y="180" width="74" height="98" rx="22" class="cap"/>
+    <rect x="1362" y="180" width="74" height="98" rx="22" class="cap"/>
+    <rect x="256" y="202" width="34" height="54" rx="17" fill="url(#glass-fill)"/>
+    <rect x="1382" y="202" width="34" height="54" rx="17" fill="url(#glass-fill)"/>
+    <rect x="256" y="202" width="34" height="54" rx="17" fill="url(#glass-overlay)"/>
+    <rect x="1382" y="202" width="34" height="54" rx="17" fill="url(#glass-overlay)"/>
+  </g>
+
+  <g>
+    <rect x="256" y="544" width="78" height="130" rx="28" class="cap"/>
+    <rect x="1338" y="544" width="78" height="130" rx="28" class="cap"/>
+    <rect x="276" y="566" width="38" height="86" rx="19" fill="url(#glass-fill)"/>
+    <rect x="1358" y="566" width="38" height="86" rx="19" fill="url(#glass-fill)"/>
+    <rect x="276" y="566" width="38" height="86" rx="19" fill="url(#glass-overlay)"/>
+    <rect x="1358" y="566" width="38" height="86" rx="19" fill="url(#glass-overlay)"/>
+  </g>
+
+  <g opacity="0.96">
+    <rect x="515" y="76" width="60" height="28" rx="12" class="copper"/>
+    <rect x="1097" y="76" width="60" height="28" rx="12" class="copper"/>
+    <rect x="150" y="214" width="30" height="56" rx="14" class="copper"/>
+    <rect x="1492" y="214" width="30" height="56" rx="14" class="copper"/>
+    <rect x="175" y="580" width="44" height="24" rx="10" class="copper"/>
+    <rect x="1453" y="580" width="44" height="24" rx="10" class="copper"/>
+  </g>
+
+  <path d="M108 320C84 350 82 390 94 420" stroke="#b8efff" stroke-opacity="0.2" stroke-width="14" stroke-linecap="round" filter="url(#mist)"/>
+  <path d="M1564 320C1588 350 1590 390 1578 420" stroke="#b8efff" stroke-opacity="0.2" stroke-width="14" stroke-linecap="round" filter="url(#mist)"/>
+  <path d="M1382 610C1406 640 1412 684 1398 720" stroke="#b8efff" stroke-opacity="0.18" stroke-width="14" stroke-linecap="round" filter="url(#mist)"/>
+
+  <g opacity="0.86">
+    <path d="M360 632H1312" stroke="#3277f7" stroke-opacity="0.26" stroke-width="4"/>
+    <path d="M748 634L792 620L836 638L890 614L950 632" stroke="url(#electric)" stroke-width="6" stroke-linecap="round" filter="url(#blue-glow)"/>
+  </g>
+
+  <g>
+    <ellipse cx="836" cy="840" rx="284" ry="78" fill="#08111d"/>
+    <ellipse cx="836" cy="840" rx="228" ry="60" fill="#0d223c" fill-opacity="0.52"/>
+    <ellipse cx="836" cy="840" rx="170" ry="44" fill="#113d8e" fill-opacity="0.32"/>
+    <ellipse cx="836" cy="840" rx="136" ry="34" fill="#62d5ff" fill-opacity="0.22"/>
+    <ellipse cx="836" cy="840" rx="258" ry="66" stroke="#6adfff" stroke-opacity="0.18" stroke-width="4"/>
+  </g>
+
+  <rect x="0" y="0" width="1672" height="941" fill="url(#bg-core-glow)" opacity="0.22"/>
+</svg>

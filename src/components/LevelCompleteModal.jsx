@@ -1,3 +1,5 @@
+import { showcaseArt, showcaseBossArtById } from "../data/showcaseArt.js";
+
 const modalActionIcons = {
   next: "/assets/ui/icon-play.png",
   restart: "/assets/ui/icon-restart.png",
@@ -20,26 +22,27 @@ function LevelCompleteModal({
   const isCampaignComplete = completionMode === "campaign";
   const isDailyComplete = completionMode === "daily";
   const eyebrow = isUltraLevel
-    ? "Ultra hard savladan"
+    ? "Ultra izazov savladan"
     : isCampaignComplete
       ? "Kampanja završena"
       : isDailyComplete
         ? "Dnevni izazov završen"
         : "Nivo završen";
   const copy = isUltraLevel
-    ? "Najbrutalnija mreža je savladana. Završni prsten je stabilisan preciznim slijedom poteza."
+    ? "Najteža mreža je savladana. Završni prsten je stabilisan preciznim slijedom poteza."
     : isCampaignComplete
       ? "Završio si sve nivoe ove težine. Tok je stabilan i kampanja je kompletirana."
       : isDailyComplete
         ? "Dnevni izazov je završen. Vrati se u meni i sačekaj novi raspored."
         : "Mreža je uspješno povezana. Pokupi bonus, upiši medalje i nastavi dalje.";
-  const nextStepLabel = isCampaignComplete || isDailyComplete ? "Izbor nivoa" : "Sljedeći nivo";
+  const nextStepLabel = isCampaignComplete || isDailyComplete ? "Nazad na meni" : "Sljedeći nivo";
   const menuLabel = isCampaignComplete || isDailyComplete ? "Početni meni" : "Izbor nivoa";
   const statusLabel = isUltraLevel
     ? "Ultra tok stabilan"
     : isCampaignComplete || isDailyComplete
-      ? "Kampanja puna"
+      ? "Kampanja završena"
       : "Tok aktivan";
+  const showMenuButton = !isCampaignComplete && !isDailyComplete;
   const medalLabel =
     stars >= 3 ? "Sve medalje" : stars === 2 ? "Dvije medalje" : "Jedna medalja";
   const displayLevelName = levelName;
@@ -51,7 +54,16 @@ function LevelCompleteModal({
       >
         <div className="modal-card__hero" aria-hidden="true">
           <div className="modal-card__hero-art">
-            <img src="/assets/legacy/scenario-pipe.svg" alt="" />
+            <img
+              src={
+                isUltraLevel
+                  ? showcaseBossArtById.singularity.portraitImage
+                  : isCampaignComplete || isDailyComplete
+                    ? showcaseArt.botWrenchHero
+                    : showcaseArt.botVictory
+              }
+              alt=""
+            />
           </div>
           <div className="modal-card__hero-badge">
             <span className="modal-card__hero-star">★</span>
@@ -141,17 +153,19 @@ function LevelCompleteModal({
             <span>Ponovi nivo</span>
           </button>
 
-          <button
-            type="button"
-            className="secondary-button is-ghost modal-action-button modal-action-button--ghost"
-            onClick={onMenu}
-            aria-label="Nazad na meni"
-          >
-            <span className="modal-action-button__icon" aria-hidden="true">
-              <img src={modalActionIcons.menu} alt="" />
-            </span>
-            <span>{menuLabel}</span>
-          </button>
+          {showMenuButton ? (
+            <button
+              type="button"
+              className="secondary-button is-ghost modal-action-button modal-action-button--ghost"
+              onClick={onMenu}
+              aria-label="Nazad na meni"
+            >
+              <span className="modal-action-button__icon" aria-hidden="true">
+                <img src={modalActionIcons.menu} alt="" />
+              </span>
+              <span>{menuLabel}</span>
+            </button>
+          ) : null}
         </div>
       </div>
     </div>
